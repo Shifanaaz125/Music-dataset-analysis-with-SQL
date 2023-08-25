@@ -106,6 +106,8 @@ Q5: Who is the best customer? The customer who has spent most money will be decl
  )
  Select * From popular_genre Where RowNo <= 1
  
+ Ans: All the countries faivorate Genre is Rock except Argentina where popular genre is Alternative & Punk. 
+ 
  
 Q10: Write a query that determines the customer that has spent the most on music on each country. Write a query that returns the country along with the top customer and how much they spent. For countries where the top amount spent is shared, provide all cutomers who spent this amount.
 With  Recursive
@@ -127,3 +129,4 @@ join country_max_spending ms
 On cc.billing_country = ms.billing_country
 Where cc.total_spending = ms.max_spending
 order by 1;
+Ans: Through out this query help we are able to see top customers list who have spent most money in there country.
