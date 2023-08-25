@@ -31,8 +31,7 @@ Q5: Who is the best customer? The customer who has spent most money will be decl
  group by customer.customer_id
  order by total desc 
  limit 1
- 
- Ans : The best customer is R Madhav.
+  Ans : The best customer is R Madhav.
  
  Q6: Write query to return the email, first name, last name, and Gener of all Rock music listners. Return your list orderd alphabetically by email starting with A.  
  Select Distinct email, first_name, last_name
@@ -69,7 +68,7 @@ Q5: Who is the best customer? The customer who has spent most money will be decl
 	  
  Ans: Occupation/Precipice
  
- Q9: How much amount spent by each customer on artists? Write a query to return customer name, artist name and total spent.
+ Q9: How much amount spent by each customer on artists? Write a query to return the customer name, artist name, and total spent.
  With best_selleing_artist as (
    select artist.artist_id as artist_id, artist.name as artist_name, 
 	sum(invoice_line.unit_price* invoice_line.quantity) as total_sales
@@ -90,8 +89,9 @@ Q5: Who is the best customer? The customer who has spent most money will be decl
  join best_selleing_artist bsa on bsa.artist_id = alb.artist_id
  group by 1,2,3,4
  order by 5 desc;
+Ans: With the help of this query we are able to see the list of the customers and how much they spend on each artist.
  
- Q9: We want to find out the most popluar gener for each country. We determine the most popular gener as the gener with highest amount of purchases. Write a query that returns each country along with the top Genre. For countries where the maximum number of purchases is shared return all Geners.
+ Q9: We want to find out the most popular gener for each country. We determine the most popular gener as the gener with highest amount of purchases. Write a query that returns each country along with the top Genre. For countries where the maximum number of purchases is shared return all Geners.
  With popular_genre as 
  (
      Select count(invoice_line.quantity) As purchases, customer.country, genre.name, genre.genre_id,
@@ -106,10 +106,10 @@ Q5: Who is the best customer? The customer who has spent most money will be decl
  )
  Select * From popular_genre Where RowNo <= 1
  
- Ans: All the countries faivorate Genre is Rock except Argentina where popular genre is Alternative & Punk. 
+ Ans: All the countries' favorite Genre is Rock except Argentina where the popular genre is Alternative and punk. 
  
  
-Q10: Write a query that determines the customer that has spent the most on music on each country. Write a query that returns the country along with the top customer and how much they spent. For countries where the top amount spent is shared, provide all cutomers who spent this amount.
+Q10: Write a query that determines the customer that has spent the most on music in each country. Write a query that returns the country along with the top customer and how much they spent. For countries where the top amount spent is shared, provide all cutomers who spent this amount.
 With  Recursive
      customer_with_country as (
 	 Select customer.customer_id, first_name, last_name, billing_country, sum (total) as total_spending
@@ -129,4 +129,5 @@ join country_max_spending ms
 On cc.billing_country = ms.billing_country
 Where cc.total_spending = ms.max_spending
 order by 1;
+	 
 Ans: Through out this query help we are able to see top customers list who have spent most money in there country.
