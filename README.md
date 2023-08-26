@@ -69,3 +69,13 @@ This project involves querying a database to extract meaningful insights, includ
 **Query:** "Determine the customers who have spent the most on music in each country."
 
 **Answer:** This query returns the top customers and their spending in each country. If multiple customers share the top spending, they are all included.
+
+
+# Request for Feedback
+Thank you for taking the time to review my notebook! I'd greatly appreciate your feedback on the following aspects:
+
+1. Data preprocessing: Did I miss any critical steps?
+2. Correct Method: Is the chosen analytical approach appropriate for this problem?
+3. Clarity: Is my explanation clear and easy to follow?  
+
+Your insights will help me improve this analysis. Feel free to comment directly on the notebook or reach out to me. Thank you!
