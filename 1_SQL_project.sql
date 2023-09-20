@@ -105,7 +105,7 @@ Ans: With the help of this query we are able to see the list of the customers an
  )
  Select * From popular_genre Where RowNo <= 1
  
- Ans: All the countries' favorite Genre is Rock except Argentina where the popular genre is Alternative and punk. 
+ Ans: All the countries favorite Genre is Rock except Argentina where the popular genre is Alternative and punk. 
  
  
 Q11: Write a query that determines the customer that has spent the most on music in each country. Write a query that returns the country along with the top customer and how much they spent. For countries where the top amount spent is shared, provide all cutomers who spent this amount.
