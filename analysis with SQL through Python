@@ -1,0 +1,176 @@
+import sqlite3
+
+# Connect to your SQLite database
+conn = sqlite3.connect('your_database.db')
+cursor = conn.cursor()
+
+# Q1: Who is the senior most employee based on job title?
+cursor.execute('''
+    SELECT * FROM employee
+    ORDER BY levels DESC 
+    LIMIT 1;
+''')
+q1_result = cursor.fetchone()
+print("Q1: Senior employee is", q1_result[1], q1_result[2])
+
+# Q2: Which country has the most invoices?
+cursor.execute('''
+    SELECT COUNT(*) AS c, billing_country
+    FROM invoice
+    GROUP BY billing_country
+    ORDER BY c DESC
+    LIMIT 1;
+''')
+q2_result = cursor.fetchone()
+print("\nQ2: {} has the most invoices.".format(q2_result[1]))
+
+# Q3: What are the top three values of total invoice?
+cursor.execute('''
+    SELECT total
+    FROM invoice
+    ORDER BY total DESC
+    LIMIT 3;
+''')
+q3_results = cursor.fetchall()
+print("\nQ3: Top three values of total invoice:")
+for result in q3_results:
+    print(result[0])
+
+# Q4: Which city has the best customers?
+cursor.execute('''
+    SELECT billing_city, SUM(total) AS invoice_total
+    FROM invoice
+    GROUP BY billing_city
+    ORDER BY invoice_total DESC
+    LIMIT 1;
+''')
+q4_result = cursor.fetchone()
+print("\nQ4: {} has the best customers.".format(q4_result[0]))
+
+# Q5: Who is the best customer?
+cursor.execute('''
+    SELECT c.customer_id, c.first_name, c.last_name, SUM(i.total) AS total
+    FROM customer c
+    JOIN invoice i ON c.customer_id = i.customer_id
+    GROUP BY c.customer_id, c.first_name, c.last_name
+    ORDER BY total DESC
+    LIMIT 1;
+''')
+q5_result = cursor.fetchone()
+print("\nQ5: The best customer is {} {}.".format(q5_result[1], q5_result[2]))
+
+# Q6: Return email, first name, and last name of all Rock music listeners.
+cursor.execute('''
+    SELECT DISTINCT c.email, c.first_name, c.last_name
+    FROM customer c
+    JOIN invoice i ON c.customer_id = i.customer_id
+    JOIN invoice_line il ON i.invoice_id = il.invoice_id
+    JOIN track t ON il.track_id = t.track_id
+    JOIN genre g ON t.genre_id = g.genre_id
+    WHERE g.name = 'Rock'
+    ORDER BY c.email;
+''')
+q6_results = cursor.fetchall()
+print("\nQ6: Email, first name, and last name of Rock music listeners:")
+for result in q6_results:
+    print(result[0], result[1], result[2])
+
+# Q7: Invite the artist who has written the most Rock songs.
+cursor.execute('''
+    SELECT a.artist_id, a.name, COUNT(a.artist_id) AS number_of_songs
+    FROM track t
+    JOIN album al ON t.album_id = al.album_id
+    JOIN artist a ON al.artist_id = a.artist_id
+    JOIN genre g ON t.genre_id = g.genre_id
+    WHERE g.name = 'Rock'
+    GROUP BY a.artist_id
+    ORDER BY number_of_songs DESC
+    LIMIT 10;
+''')
+q7_results = cursor.fetchall()
+print("\nQ7: The top 10 Rock artists are:")
+for result in q7_results:
+    print(result[1])
+
+# Q8: Return track names with song length longer than average.
+cursor.execute('''
+    SELECT name, milliseconds
+    FROM track
+    WHERE milliseconds > (
+        SELECT AVG(milliseconds) AS avg_track_length
+        FROM track
+    )
+    ORDER BY milliseconds DESC;
+''')
+q8_results = cursor.fetchall()
+print("\nQ8: Tracks with song length longer than average:")
+for result in q8_results:
+    print(result[0], result[1])
+
+# Q9: How much amount spent by each customer on artists?
+cursor.execute('''
+    WITH best_selling_artist AS (
+        SELECT a.artist_id, a.name AS artist_name,
+            SUM(il.unit_price * il.quantity) AS total_sales
+        FROM invoice_line il
+        JOIN track t ON il.track_id = t.track_id
+        JOIN album al ON t.album_id = al.album_id
+        JOIN artist a ON al.artist_id = a.artist_id
+        GROUP BY a.artist_id
+        ORDER BY total_sales DESC
+    )
+    SELECT c.customer_id, c.first_name, c.last_name, bsa.artist_name,
+        SUM(il.unit_price * il.quantity) AS amount_spent
+    FROM invoice i
+    JOIN customer c ON c.customer_id = i.customer_id
+    JOIN invoice_line il ON i.invoice_id = il.invoice_id
+    JOIN track t ON t.track_id = il.track_id
+    JOIN album al ON al.album_id = t.album_id
+    JOIN best_selling_artist bsa ON bsa.artist_id = al.artist_id
+    GROUP BY c.customer_id, c.first_name, c.last_name, bsa.artist_name
+    ORDER BY amount_spent DESC;
+''')
+q9_results = cursor.fetchall()
+print("\nQ9: Amount spent by each customer on artists:")
+for result in q9_results:
+    print(result[1], result[2], result[3], result[4])
+
+# Q10: Find the most popular genre for each country.
+cursor.execute('''
+    WITH popular_genre AS (
+        SELECT COUNT(il.quantity) AS purchases, c.country, g.name AS genre_name,
+            ROW_NUMBER() OVER (PARTITION BY c.country ORDER BY COUNT(il.quantity) DESC) AS RowNO
+        FROM invoice_line il
+        JOIN invoice i ON il.invoice_id = i.invoice_id
+        JOIN customer c ON i.customer_id = c.customer_id
+        JOIN track t ON il.track_id = t.track_id
+        JOIN genre g ON t.genre_id = g.genre_id
+        GROUP BY c.country, g.name
+        ORDER BY c.country ASC, purchases DESC
+    )
+    SELECT country, genre_name
+    FROM popular_genre
+    WHERE RowNO = 1;
+''')
+q10_results = cursor.fetchall()
+print("\nQ10: Most popular genre for each country:")
+for result in q10_results:
+    print(result[0], result[1])
+
+# Q11: Determine the customer that has spent the most on music in each country.
+cursor.execute('''
+    WITH customer_with_country AS (
+        SELECT c.customer_id, c.first_name, c.last_name, c.billing_country,
+            SUM(i.total) AS total_spending
+        FROM invoice i
+        JOIN customer c ON i.customer_id = c.customer_id
+        GROUP BY c.customer_id, c.first_name, c.last_name, c.billing_country
+        ORDER BY c.customer_id, total_spending DESC
+    ),
+    country_max_spending AS (
+        SELECT billing_country, MAX(total_spending) AS Max_spending
+        FROM customer_with_country
+        GROUP BY billing_country
+    )
+    SELECT cc.billing_country, cc.total_spending, cc.first_name, cc.last_name, cc.customer_id
+    FROM customer_with_country cc
