@@ -1,3 +1,6 @@
+![image](https://github.com/Shifanaaz125/Music-dataset-analysis-with-SQL/assets/120267469/cf14fd31-50b6-434c-9663-a1aad8c99905)
+
+
 # Music-dataset-analysis-with-SQL
 
 This project involves querying a database to extract meaningful insights, including employee hierarchy, customer behavior, music preferences, and top spending patterns. It provides valuable information for decision-making and marketing strategies.
